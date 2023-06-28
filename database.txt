@@ -1,0 +1,15 @@
+-- Database: TimeTracker
+
+-- DROP DATABASE IF EXISTS "TimeTracker";
+
+CREATE DATABASE "TimeTracker"
+    WITH
+    OWNER = postgres
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'Serbian (Latin)_Serbia.1252'
+    LC_CTYPE = 'Serbian (Latin)_Serbia.1252'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1;
+
+COMMENT ON DATABASE "TimeTracker"
+    IS 'For the time tracker app';
