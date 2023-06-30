@@ -3,3 +3,4 @@
 # Virtual environment
 venv/
 .idea/
+.env
