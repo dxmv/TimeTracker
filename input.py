@@ -28,7 +28,7 @@ def main():
             host=os.environ.get("DB_HOST"),
             database=os.environ.get("DB_DATABASE"),
             user=os.environ.get("DB_USERNAME"),
-            password=os.environ.get("PASSWORD"))
+            password=os.environ.get("DB_PASSWORD"))
 
         cur = conn.cursor()
         cur.execute(
@@ -62,3 +62,6 @@ def main():
     button.pack(padx=10, pady=10)
 
     root.mainloop()
+
+if __name__ == '__main__':
+    main()
