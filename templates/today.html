@@ -15,11 +15,13 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <th scope="row">1</th>
-          <td>Mark</td>
-          <td>Otto</td>
-        </tr>
+        {% for key, value in day.items() %}
+          <tr>
+            <th scope="row">{{value.start}}</th>
+            <td>{{value.end}}</td>
+            <td>{{value.text}}</td>
+          </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>
