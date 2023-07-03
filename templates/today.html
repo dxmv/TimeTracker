@@ -4,27 +4,31 @@
 
 {% block content %}
 <main class="mx-4 row">
-  <h3 class="mb-4">Date: </h3>
-  <div class="col">
-    <table class="table table-dark table-striped">
-      <thead>
-        <tr class="table-primary">
-          <th scope="col">Start</th>
-          <th scope="col">End</th>
-          <th scope="col">Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for key, value in day.items() %}
-          <tr>
-            <th scope="row">{{value.start}}</th>
-            <td>{{value.end}}</td>
-            <td>{{value.text}}</td>
+  {% if error %}
+    <p>{{error}}</p>
+  {% else %}
+    <h3 class="mb-4">Date: </h3>
+    <div class="col">
+      <table class="table table-dark table-striped">
+        <thead>
+          <tr class="table-primary">
+            <th scope="col">Start</th>
+            <th scope="col">End</th>
+            <th scope="col">Action</th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  <div class="col">a</div>
+        </thead>
+        <tbody>
+          {% for key, value in day.items() %}
+            <tr>
+              <td scope="row">{{value.start}}</td>
+              <td>{{value.end}}</td>
+              <th>{{value.text}}</th>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="col">a</div>
+  {% endif %}
 </main>
 {% endblock %}
