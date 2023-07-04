@@ -1,7 +1,22 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Week{% endblock %}
 
 {% block content %}
-  alo
+<main class="mx-4 row">
+  <h3 class="mb-4">Last week activities</h3>
+  <div class="row">
+    {% for key, value in week.items() %}
+      <div class="col border custom-link">
+        <a class="custom-link" href="/date/{{key[0]}}" style="color:black;font-size:20px;font-weight:bold;text-decoration:none;">{{key[1]}}</a>
+        <ul class="text-sm">
+          {% for item in value%}
+            <li><small>{{item}}</small></li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+  </div>
+
+</main>
 {% endblock %}

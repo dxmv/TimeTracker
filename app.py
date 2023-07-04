@@ -1,11 +1,11 @@
 # Flask app for showing the database contents.
-import datetime
 import re
 import psycopg2
 from flask import Flask, render_template
 import os
 from dotenv import load_dotenv
-from action import Action
+from action import Day
+import datetime
 
 load_dotenv()
 app = Flask(__name__)
@@ -15,6 +15,8 @@ date_regex = r"\d{4}-\d{2}-\d{2}"
 # Select Queries
 today_query = "SELECT * FROM ACTIVITY WHERE DAY_DATE=CURRENT_DATE;"
 week_query = "SELECT * FROM ACTIVITY WHERE DAY_DATE >= current_date - interval '1 week' AND DAY_DATE <= current_date;"
+week_activities_query = "SELECT TEXT,COUNT(*) FROM ACTIVITY WHERE DAY_DATE >= current_date - interval '1 week' AND DAY_DATE <= current_date GROUP BY TEXT ORDER BY COUNT(*);"
+month_activities_query="SELECT TEXT,COUNT(*) FROM ACTIVITY WHERE DAY_DATE >= current_date - interval '1 month' AND DAY_DATE <= current_date GROUP BY TEXT ORDER BY COUNT(*);"
 
 
 @app.route("/")
@@ -26,12 +28,7 @@ def home():
 def date(date_param):
     if not re.match(date_regex, date_param) and date_param != "today":
         return render_template("today.html", error="The format of the date is wrong")
-    day = {}
-    for hour in range(24):
-        start_one, start_two = [f"{convert_hours_string(hour)}:00", f"{convert_hours_string(hour)}:30"]
-        end_one, end_two = [f"{convert_hours_string(hour)}:30", f"{convert_hours_string(hour + 1)}:00"]
-        day[f"{start_one}-{end_one}"] = Action(start_one, end_one,None, datetime.date)
-        day[f"{start_two}-{end_two}"] = Action(start_two, end_two,None, datetime.date)
+    day = Day()
 
     # A connection to the PostgreSQL database
     conn = psycopg2.connect(
@@ -55,25 +52,63 @@ def date(date_param):
         for row in rows:
             [text, start, end, date] = [row[1], row[2].strftime(TIME_FORMAT), row[3].strftime(TIME_FORMAT), row[4]]
             key = f"{start}-{end}"
-            day[key] = Action(start, end, text, date)
+            day.add_value(key, start, end, text, date)
     except Exception as e:
         print(f"Error: {e}")
     finally:
         # Close the cursor and connection
         cur.close()
         conn.close()
-    return render_template("today.html", day=day)
+        print(day.top_actions())
+    return render_template("today.html", day=day.day, chart_values=day.chart_values())
 
 
 @app.route("/week")
 def week():
-    pass
+    # Get the current date
+    current_date = datetime.date.today()
 
+    # Calculate the date 7 days ago
+    seven_days_ago = current_date - datetime.timedelta(days=7)
 
-def convert_hours_string(hour):
-    if hour < 10:
-        return f"0{hour}"
-    return f"{hour}"
+    # Generate a list of the last 7 days
+    last_7_days = [seven_days_ago + datetime.timedelta(days=i) for i in range(7)]
+    week_days = {}
+    final = {}
+    # Print the last 7 days
+    for day in last_7_days:
+        week_days[str(day)] = Day()
+        final[(str(day), str(day).split("-")[2])] = None
+
+    # A connection to the PostgreSQL database
+    conn = psycopg2.connect(
+        host=os.environ.get("DB_HOST"),
+        database=os.environ.get("DB_DATABASE"),
+        user=os.environ.get("DB_USERNAME"),
+        password=os.environ.get("DB_PASSWORD"))
+    cur = conn.cursor()
+    try:
+
+        # Execute a select query
+        cur.execute(week_query)
+
+        # Fetch all the rows returned by the query
+        rows = cur.fetchall()
+        # Process the rows
+        for row in rows:
+            [text, start, end, date] = [row[1], row[2].strftime(TIME_FORMAT), row[3].strftime(TIME_FORMAT), row[4]]
+            key = f"{start}-{end}"
+            week_days[str(date)].add_value(key, start, end, text, date)
+        for key, val in week_days.items():
+            final[(str(key), str(key).split("-")[2])] = val.top_actions()
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        # Close the cursor and connection
+        cur.close()
+        conn.close()
+        print(final)
+    return render_template("week.html", week=final)
 
 
 # running application
