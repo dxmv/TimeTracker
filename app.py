@@ -16,12 +16,34 @@ date_regex = r"\d{4}-\d{2}-\d{2}"
 today_query = "SELECT * FROM ACTIVITY WHERE DAY_DATE=CURRENT_DATE;"
 week_query = "SELECT * FROM ACTIVITY WHERE DAY_DATE >= current_date - interval '1 week' AND DAY_DATE <= current_date;"
 week_activities_query = "SELECT TEXT,COUNT(*) FROM ACTIVITY WHERE DAY_DATE >= current_date - interval '1 week' AND DAY_DATE <= current_date GROUP BY TEXT ORDER BY COUNT(*);"
-month_activities_query="SELECT TEXT,COUNT(*) FROM ACTIVITY WHERE DAY_DATE >= current_date - interval '1 month' AND DAY_DATE <= current_date GROUP BY TEXT ORDER BY COUNT(*);"
+month_activities_query = "SELECT TEXT,COUNT(*) FROM ACTIVITY WHERE DAY_DATE >= current_date - interval '1 month' AND DAY_DATE <= current_date GROUP BY TEXT ORDER BY COUNT(*);"
 
 
 @app.route("/")
 def home():
-    return render_template("home.html")
+
+    # A connection to the PostgreSQL database
+    conn = psycopg2.connect(
+        host=os.environ.get("DB_HOST"),
+        database=os.environ.get("DB_DATABASE"),
+        user=os.environ.get("DB_USERNAME"),
+        password=os.environ.get("DB_PASSWORD"))
+    cur = conn.cursor()
+    most_popular=None
+    try:
+
+        # Execute a select query
+        cur.execute(month_activities_query)
+
+        # Fetch all the rows returned by the query
+        most_popular = cur.fetchall()
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        # Close the cursor and connection
+        cur.close()
+        conn.close()
+    return render_template("home.html",most_popular=most_popular)
 
 
 @app.route("/date/<date_param>")
@@ -73,6 +95,7 @@ def week():
 
     # Generate a list of the last 7 days
     last_7_days = [seven_days_ago + datetime.timedelta(days=i) for i in range(7)]
+    most_popular = None
     week_days = {}
     final = {}
     # Print the last 7 days
@@ -101,14 +124,16 @@ def week():
             week_days[str(date)].add_value(key, start, end, text, date)
         for key, val in week_days.items():
             final[(str(key), str(key).split("-")[2])] = val.top_actions()
+
+        cur.execute(week_activities_query)
+        most_popular = cur.fetchall()
     except Exception as e:
         print(f"Error: {e}")
     finally:
         # Close the cursor and connection
         cur.close()
         conn.close()
-        print(final)
-    return render_template("week.html", week=final)
+    return render_template("week.html", week=final, most_popular=most_popular)
 
 
 # running application

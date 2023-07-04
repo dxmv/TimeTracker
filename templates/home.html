@@ -6,6 +6,11 @@
 <main class="row mx-4">
   <div class="col">
     <h3>Most popular activities this month</h3>
+    <ol>
+      {% for item in most_popular%}
+        <li>{{item[0]}} - {{item[1]}}</li>
+      {% endfor %}
+    </ol>
   </div>
   <div class="col">
     a

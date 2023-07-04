@@ -9,7 +9,7 @@
   {% else %}
     <h3 class="mb-4">Date: </h3>
     <div class="col" >
-      <table class="table table-dark table-striped" >
+      <table class="table table-dark table-striped table-hover" >
         <thead>
           <tr class="table-primary">
             <th scope="col">Start</th>
@@ -19,7 +19,7 @@
         </thead>
         <tbody>
           {% for key, value in day.items() %}
-            <tr>
+            <tr onclick="editField()">
               <td scope="row">{{value.start}}</td>
               <td>{{value.end}}</td>
               <th>{{value.text}}</th>
@@ -29,7 +29,7 @@
       </table>
     </div>
     <div class="col">
-      <canvas id="myChart"></canvas>
+      <canvas id="dayChart"></canvas>
     </div>
   {% endif %}
 </main>

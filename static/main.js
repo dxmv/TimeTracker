@@ -1,6 +1,7 @@
 const loadDayChart=()=>{
-    const ctx = document.getElementById('myChart');
-    new Chart(ctx, {
+  const ctx = document.getElementById('dayChart');
+
+  new Chart(ctx, {
     type: 'bar',
     data: {
       labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
@@ -17,6 +18,9 @@ const loadDayChart=()=>{
         }
       }
     }
-    });
+  });
 }
 
+const editField=()=>{
+    console.log("Zoki");
+};
