@@ -19,7 +19,7 @@ week_activities_query = "SELECT TEXT,COUNT(*) FROM ACTIVITY WHERE DAY_DATE >= cu
 month_activities_query = "SELECT TEXT,COUNT(*) FROM ACTIVITY WHERE DAY_DATE >= current_date - interval '1 month' AND DAY_DATE <= current_date GROUP BY TEXT ORDER BY COUNT(*);"
 
 
-@app.route("/")
+@app.route("/",methods=["GET"])
 def home():
 
     # A connection to the PostgreSQL database
@@ -85,7 +85,7 @@ def date(date_param):
     return render_template("today.html", day=day.day, chart_values=day.chart_values())
 
 
-@app.route("/week")
+@app.route("/week",methods=["GET"])
 def week():
     # Get the current date
     current_date = datetime.date.today()
