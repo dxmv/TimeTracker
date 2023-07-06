@@ -21,6 +21,13 @@ const loadDayChart=()=>{
   });
 }
 
-const editField=()=>{
-    console.log("Zoki");
+const editFormOpen=(start,end,activityText)=>{
+    const darkOverlay=document.getElementById("dark-overlay");
+    darkOverlay.style.display="flex";
+    const startTime=document.getElementById("startTime");
+    const endTime=document.getElementById("endTime");
+    const activity=document.getElementById("activity");
+    startTime.value=start;
+    endTime.value=end;
+    activity.value=activityText;
 };

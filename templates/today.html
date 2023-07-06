@@ -19,8 +19,8 @@
         </thead>
         <tbody>
           {% for key, value in day.items() %}
-            <tr onclick="editField()">
-              <td scope="row">{{value.start}}</td>
+            <tr onclick="editFormOpen('{{ value.start }}', '{{ value.end }}', '{{ value.text }}')">
+              <td scope="row" >{{value.start}}</td>
               <td>{{value.end}}</td>
               <th>{{value.text}}</th>
             </tr>
@@ -32,5 +32,28 @@
       <canvas id="dayChart"></canvas>
     </div>
   {% endif %}
+  <div id="dark-overlay">
+    <div id="edit-form" class="rounded px-3 py-3  d-flex flex-column ">
+      <h2 class="mb-4 text-center">Edit</h2>
+      <form>
+        <div class="form-group mb-3">
+          <label for="startTime">Start</label>
+          <input type="text" class="form-control" id="startTime" placeholder="00:00" name="startTime" readonly>
+          <small class="form-text text-muted">The time task started</small>
+        </div>
+        <div class="form-group mb-3">
+          <label for="endTime">End</label>
+          <input type="text" class="form-control" id="endTime" placeholder="00:00" name="endTime" readonly>
+          <small class="form-text text-muted">The time task ended</small>
+        </div>
+        <div class="form-group mb-4">
+          <label for="activity">Activity</label>
+          <input type="text" class="form-control" id="activity" placeholder="Activity name..." name="activity">
+        </div>
+        <button class="btn btn-primary" type="submit" id="editSave">Save</button>
+        <button class="btn btn-danger" id="editCancel">Cancel</button>
+      </form>
+    </div>
+  </div>
 </main>
 {% endblock %}
