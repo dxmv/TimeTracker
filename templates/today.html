@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Today{% endblock %}
+{% block title %}{{date}}{% endblock %}
 
 {% block content %}
 <main class="mx-4 row" >
   {% if error %}
     <p>{{error}}</p>
   {% else %}
-    <h3 class="mb-4">Date: </h3>
+    <h3 class="mb-4">Date: {{date}}</h3>
     <div class="col" >
       <table class="table table-dark table-striped table-hover" onload="loadDayChart()">
         <thead>
@@ -35,7 +35,7 @@
   <div id="dark-overlay">
     <div id="edit-form" class="rounded px-3 py-3  d-flex flex-column ">
       <h2 class="mb-4 text-center">Edit</h2>
-      <form onsubmit="">
+      <form method="post" action="/date/{{ date }}">
         <div class="form-group mb-3">
           <label for="startTime">Start</label>
           <input type="text" class="form-control" id="startTime" placeholder="00:00" name="startTime" readonly>

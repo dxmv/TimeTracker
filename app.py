@@ -1,7 +1,7 @@
 # Flask app for showing the database contents.
 import re
 import psycopg2
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect
 import os
 from dotenv import load_dotenv
 from action import Day
@@ -19,9 +19,8 @@ week_activities_query = "SELECT TEXT,COUNT(*) FROM ACTIVITY WHERE DAY_DATE >= cu
 month_activities_query = "SELECT TEXT,COUNT(*) FROM ACTIVITY WHERE DAY_DATE >= current_date - interval '1 month' AND DAY_DATE <= current_date GROUP BY TEXT ORDER BY COUNT(*);"
 
 
-@app.route("/",methods=["GET"])
+@app.route("/", methods=["GET"])
 def home():
-
     # A connection to the PostgreSQL database
     conn = psycopg2.connect(
         host=os.environ.get("DB_HOST"),
@@ -29,7 +28,7 @@ def home():
         user=os.environ.get("DB_USERNAME"),
         password=os.environ.get("DB_PASSWORD"))
     cur = conn.cursor()
-    most_popular=None
+    most_popular = None
     try:
 
         # Execute a select query
@@ -43,49 +42,85 @@ def home():
         # Close the cursor and connection
         cur.close()
         conn.close()
-    return render_template("home.html",most_popular=most_popular)
+    return render_template("home.html", most_popular=most_popular)
 
 
-@app.route("/date/<date_param>")
+@app.route("/date/<date_param>", methods=["GET", "POST"])
 def date(date_param):
-    if not re.match(date_regex, date_param) and date_param != "today":
-        return render_template("today.html", error="The format of the date is wrong")
-    day = Day()
+    if request.method == "POST":
+        print("a")
 
-    # A connection to the PostgreSQL database
-    conn = psycopg2.connect(
-        host=os.environ.get("DB_HOST"),
-        database=os.environ.get("DB_DATABASE"),
-        user=os.environ.get("DB_USERNAME"),
-        password=os.environ.get("DB_PASSWORD"))
-    cur = conn.cursor()
-    try:
+        start, end, text = request.form.get("startTime"), request.form.get("endTime"), request.form.get("activity")
+        if text == "None":
+            return redirect(f"/date/{date_param}")
+        currentDate = datetime.datetime.today().date() if date_param == "today" else date_param
+        # A connection to the PostgreSQL database
+        conn = psycopg2.connect(
+            host=os.environ.get("DB_HOST"),
+            database=os.environ.get("DB_DATABASE"),
+            user=os.environ.get("DB_USERNAME"),
+            password=os.environ.get("DB_PASSWORD"))
+        cur = conn.cursor()
+        try:
+            cur.execute(
+                f"SELECT * FROM ACTIVITY WHERE DAY_DATE = '{currentDate}' AND START_AT = '{start}' AND END_AT = '{end}';")
 
-        # Execute a select query
-        if date_param == "today":
-            cur.execute(today_query)
-        else:
-            cur.execute(f"SELECT * FROM ACTIVITY WHERE DAY_DATE='{date_param}'")
+            # Fetch all the rows returned by the query
+            row = cur.fetchall()
+            # If the activity doesn't exist in the database add it
+            if not row:
+                cur.execute(f"INSERT INTO ACTIVITY(TEXT,START_AT,END_AT,DAY_DATE) VALUES ('{text}','{start}','{end}','{currentDate}')")
+                conn.commit()
+            # If the activity exists then just update it
+            else:
+                cur.execute(f"UPDATE ACTIVITY SET TEXT='{text}' WHERE START_AT='{start}' AND END_AT='{end}' AND DAY_DATE='{currentDate}';")
+                conn.commit()
+        except Exception as e:
+            print(f"Error: {e}")
+        finally:
+            # Close the cursor and connection
+            cur.close()
+            conn.close()
+        return redirect(f"/date/{date_param}")
+    else:
+        if not re.match(date_regex, date_param) and date_param != "today":
+            return render_template("today.html", error="The format of the date is wrong")
+        day = Day()
 
-        # Fetch all the rows returned by the query
-        rows = cur.fetchall()
+        # A connection to the PostgreSQL database
+        conn = psycopg2.connect(
+            host=os.environ.get("DB_HOST"),
+            database=os.environ.get("DB_DATABASE"),
+            user=os.environ.get("DB_USERNAME"),
+            password=os.environ.get("DB_PASSWORD"))
+        cur = conn.cursor()
+        try:
 
-        # Process the rows
-        for row in rows:
-            [text, start, end, date] = [row[1], row[2].strftime(TIME_FORMAT), row[3].strftime(TIME_FORMAT), row[4]]
-            key = f"{start}-{end}"
-            day.add_value(key, start, end, text, date)
-    except Exception as e:
-        print(f"Error: {e}")
-    finally:
-        # Close the cursor and connection
-        cur.close()
-        conn.close()
-        print(day.top_actions())
-    return render_template("today.html", day=day.day, chart_values=day.chart_values())
+            # Execute a select query
+            if date_param == "today":
+                cur.execute(today_query)
+            else:
+                cur.execute(f"SELECT * FROM ACTIVITY WHERE DAY_DATE='{date_param}'")
+
+            # Fetch all the rows returned by the query
+            rows = cur.fetchall()
+
+            # Process the rows
+            for row in rows:
+                [text, start, end, date] = [row[1], row[2].strftime(TIME_FORMAT), row[3].strftime(TIME_FORMAT), row[4]]
+                key = f"{start}-{end}"
+                day.add_value(key, start, end, text, date)
+        except Exception as e:
+            print(f"Error: {e}")
+        finally:
+            # Close the cursor and connection
+            cur.close()
+            conn.close()
+        return render_template("today.html", day=day.day, chart_values=day.chart_values(),
+                               date=(datetime.datetime.today().date() if date_param == "today" else date_param))
 
 
-@app.route("/week",methods=["GET"])
+@app.route("/week", methods=["GET"])
 def week():
     # Get the current date
     current_date = datetime.date.today()
