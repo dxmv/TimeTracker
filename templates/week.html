@@ -18,17 +18,18 @@
     {% endfor %}
   </div>
   <div class="row">
+    <h3>Most popular activities last week</h3>
     <div class="col">
-      <h3>Most popular activities last week</h3>
       <ol>
         {% for item in most_popular%}
-          <li>{{item[0]}} - {{item[1]}}</li>
+          <li class="activity-name">{{item[0]}} - {{item[1]}}</li>
         {% endfor %}
       </ol>
     </div>
-    <div class="col">
-
+    <div class="col" style="max-height:70vh;display:flex;justify-content:center;">
+      <canvas id="weekChart"></canvas>
     </div>
   </div>
 </main>
+<script src="{{url_for('static', filename='week.js')}}"></script>
 {% endblock %}

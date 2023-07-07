@@ -12,7 +12,7 @@ const editFormOpen=(start,end,activityText)=>{
 const cancelForm=()=>{
     const darkOverlay=document.getElementById("dark-overlay");
     darkOverlay.style.display="none";
-}
+};
 
 const cancelButton=document.getElementById("editCancel");
 cancelButton.onclick=cancelForm;
@@ -31,7 +31,7 @@ activities.forEach(item=>{
 });
 const [keys,items]=[[],[]];
 for (let key of map.keys()) {
-    keys.push(key);
+    keys.push(key==="None"?"Unknown":key);
     items.push(map.get(key));
 }
 
