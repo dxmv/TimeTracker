@@ -24,3 +24,20 @@
     background:white;
     width:30%;
 }
+
+table {
+    width: 100%;
+}
+
+table tbody {
+    display: block;
+    width: 100%;
+    overflow-y: scroll;
+    height: 80vh;
+}
+tr{
+    display:flex;
+}
+td,th{
+    width:100%;
+}
