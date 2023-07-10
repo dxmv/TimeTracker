@@ -5,8 +5,8 @@ activities.forEach(item=>{
     const text=item.innerHTML;
     const [name,times]=text.split("-");
     keys.push(name);
-    items.push(times);
-    sum+=Number(items);
+    items.push(item.dataset.times);
+    sum+=Number(item.dataset.times);
 });
 keys.push("Unknown");
 items.push((7*48)-sum);

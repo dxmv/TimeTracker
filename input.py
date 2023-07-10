@@ -8,6 +8,7 @@ import os
 DATE_FORMAT = "%H:%M"
 load_dotenv()
 
+
 def main():
     def get_start_end(time):
         end_hours, end_minutes = time.split(":")
@@ -62,6 +63,7 @@ def main():
     button.pack(padx=10, pady=10)
 
     root.mainloop()
+
 
 if __name__ == '__main__':
     main()

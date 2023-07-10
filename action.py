@@ -1,4 +1,5 @@
 import datetime
+import math
 
 
 class Action:
@@ -42,10 +43,19 @@ class Day:
         sorted_dict = dict(sorted(values.items(), key=lambda item: item[1]))
         arr = []
         for key, value in sorted_dict.items():
-            arr.append(f"{key} - {value}")
+            arr.append(f"{key} - {self.convert_to_hours(value)}")
         arr.reverse()
-        return arr[:3]
+        return arr[:5]
 
+    @staticmethod
+    def convert_to_hours(value):
+        if value==0:
+            return "0h 0min"
+        if value==1:
+            return "0h 30min"
+        if value%2==0:
+            return f"{math.floor(value/2)}h 0min"
+        return f"{math.floor(value/2)}h 30min"
     @staticmethod
     def convert_hours_string(hour):
         if hour < 10:

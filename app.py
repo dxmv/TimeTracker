@@ -15,8 +15,8 @@ date_regex = r"\d{4}-\d{2}-\d{2}"
 # Select Queries
 today_query = "SELECT * FROM ACTIVITY WHERE DAY_DATE=CURRENT_DATE;"
 week_query = "SELECT * FROM ACTIVITY WHERE DAY_DATE >= current_date - interval '1 week' AND DAY_DATE <= current_date;"
-week_activities_query = "SELECT TEXT,COUNT(*) FROM ACTIVITY WHERE DAY_DATE >= current_date - interval '1 week' AND DAY_DATE <= current_date GROUP BY TEXT ORDER BY COUNT(*);"
-month_activities_query = "SELECT TEXT,COUNT(*) FROM ACTIVITY WHERE DAY_DATE >= current_date - interval '1 month' AND DAY_DATE <= current_date GROUP BY TEXT ORDER BY COUNT(*);"
+week_activities_query = "SELECT TEXT,COUNT(*) FROM ACTIVITY WHERE DAY_DATE >= current_date - interval '1 week' AND DAY_DATE <= current_date GROUP BY TEXT ORDER BY COUNT(*) DESC LIMIT 15;"
+month_activities_query = "SELECT TEXT,COUNT(*) FROM ACTIVITY WHERE DAY_DATE >= current_date - interval '1 month' AND DAY_DATE <= current_date GROUP BY TEXT ORDER BY COUNT(*) DESC LIMIT 15;"
 
 
 @app.route("/", methods=["GET"])
@@ -28,14 +28,16 @@ def home():
         user=os.environ.get("DB_USERNAME"),
         password=os.environ.get("DB_PASSWORD"))
     cur = conn.cursor()
-    most_popular = None
+    most_popular = []
     try:
 
         # Execute a select query
         cur.execute(month_activities_query)
 
         # Fetch all the rows returned by the query
-        most_popular = cur.fetchall()
+        rows = cur.fetchall()
+        for row in rows:
+            most_popular.append((row[0],row[1],Day.convert_to_hours(row[1])))
     except Exception as e:
         print(f"Error: {e}")
     finally:
@@ -48,7 +50,6 @@ def home():
 @app.route("/date/<date_param>", methods=["GET", "POST"])
 def date(date_param):
     if request.method == "POST":
-        print("a")
 
         start, end, text = request.form.get("startTime"), request.form.get("endTime"), request.form.get("activity")
         if text == "None":
@@ -130,7 +131,7 @@ def week():
 
     # Generate a list of the last 7 days
     last_7_days = [seven_days_ago + datetime.timedelta(days=i) for i in range(7)]
-    most_popular = None
+    most_popular = []
     week_days = {}
     final = {}
     # Print the last 7 days
@@ -161,7 +162,9 @@ def week():
             final[(str(key), str(key).split("-")[2])] = val.top_actions()
 
         cur.execute(week_activities_query)
-        most_popular = cur.fetchall()
+        rows = cur.fetchall()
+        for row in rows:
+            most_popular.append((row[0],row[1],Day.convert_to_hours(row[1])))
     except Exception as e:
         print(f"Error: {e}")
     finally:

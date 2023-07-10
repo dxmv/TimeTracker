@@ -8,7 +8,7 @@
   <div class="col">
     <ol>
       {% for item in most_popular%}
-        <li class="activity-name">{{item[0]}} - {{item[1]}}</li>
+        <li class="activity-name" data-times={{item[1]}}>{{item[0]}} - {{item[2]}}</li>
       {% endfor %}
     </ol>
   </div>

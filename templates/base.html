@@ -10,19 +10,18 @@
     <link href="{{url_for('static', filename='style.css')}}" rel="stylesheet" type="text/css">
 </head>
 <body style="position:relative;">
+{% macro navitem(text,href) -%}
+        <li class="nav-item">
+          <a class="nav-link" href="{{href}}">{{text}}</a>
+        </li>
+{%- endmacro %}
     <nav class="navbar navbar-expand-lg bg-body-tertiary bg-primary mb-3" data-bs-theme="dark">
       <div class="container-fluid">
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="/">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/date/today">Today</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/week">This week</a>
-            </li>
+            {{ navitem('Home','/') }}
+            {{ navitem('Today','/date/today') }}
+            {{ navitem('This week','/week') }}
           </ul>
         </div>
       </div>
